@@ -2,49 +2,76 @@ package com.example.weather;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Controller {
+    @FXML
+    public AnchorPane AnchorPaneWindow;
+    @FXML
+    public Pane CurrentPane, Forecast;
     @FXML
     public ListView<HistoryItem> historyListView;
     // Core Fields
     @FXML
     private TextField searchField;
     @FXML
-    private ToggleButton celsiusToggle, mphToggle;
+    private ToggleButton fahrenheitToggle, mphToggle;
     @FXML
-    public Label WindLabel, HumidityLabel, VisibilityLabel, ForecastLabel, CurrentWeatherLabel, FeelsLikeLabel;
+    public Label WindLabel, HumidityLabel, VisibilityLabel, CurrentWeatherLabel, FeelsLikeLabel;
     @FXML
     public ImageView sunriseImage, sunsetImage;
     @FXML
     private ImageView currentWeatherImage, currentWindSpeedDirection;
     @FXML
-    private Label currentLocationLabel, currentTime, currentTemperature, temperatureGetter, currentWeatherMain, currentFeelsLike, currentTempMin, currentTempMax, currentWindSpeed, windSpeedGetter, currentHumidity, currentVisibility, sunriseTime, sunsetTime;
-    //Forecast Labels
+    private Label currentLocationLabel, currentTime, currentTemperature, currentWeatherMain, currentFeelsLike, currentTempMin, currentTempMax, currentWindSpeed, currentHumidity, currentVisibility, sunriseTime, sunsetTime;
+    //Forecast
     @FXML
-    public Label forecastDay1, forecastMin1, forecastMax1, forecastDay2, forecastMin2, forecastMax2, forecastDay3, forecastMin3, forecastMax3, forecastDay4, forecastMin4, forecastMax4, forecastDay5, forecastMin5, forecastMax5;
-    //Forecast Images
+    public Label ForecastLabel, forecastDay1, forecastMin1, forecastMax1, forecastDay2, forecastMin2, forecastMax2, forecastDay3, forecastMin3, forecastMax3, forecastDay4, forecastMin4, forecastMax4, forecastDay5, forecastMin5, forecastMax5;
     @FXML
-    public ImageView forecastMax1Image, forecastMin1Image, forecastImage1, forecastImage2, forecastImage3, forecastImage4, forecastImage5;
+    public ImageView forecastImage1, forecastImage2, forecastImage3, forecastImage4, forecastImage5;
+
+    private final String API_KEY = "73085df9f155c4c2b7a2aa67da0879b9";
+    private final String API_URL = "https://api.openweathermap.org/data/2.5";
 
     @FXML
     private void handleToggleAction() {
-        updateUIWithConversion();
+        if (searchField.getText().isEmpty()) {
+            if (fahrenheitToggle.isSelected()) {
+                // Update Toggle to Fahrenheit
+                fahrenheitToggle.setText("°F");
+            } else {
+                // Update Toggle to Celsius
+                fahrenheitToggle.setText("°C");
+            }
+            if (mphToggle.isSelected()) {
+                // Update Toggle to mph
+                mphToggle.setText("mph");
+            } else {
+                // Update Toggle to km/h
+                mphToggle.setText("km/h");
+            }
+        } else {
+            updateUIWithConversion();
+        }
     }
 
     @FXML
@@ -52,7 +79,6 @@ public class Controller {
         String city = searchField.getText();
         // Validate input
         if (city.isEmpty()) {
-            System.out.println("Location Empty");
             showErrorDialog("Invalid Input", "Please enter a city name.");
             return;
         }
@@ -61,7 +87,7 @@ public class Controller {
     }
 
     public void initialize() {
-        historyListView.setCellFactory(lv -> new ListCell<HistoryItem>() {
+        historyListView.setCellFactory(lv -> new ListCell<>() {
             private ImageView weatherIcon = new ImageView();
             private Button removeButton = new Button("Remove");
             private HBox content = new HBox();
@@ -88,7 +114,6 @@ public class Controller {
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    weatherIcon.setImage(new Image(item.getIconPath()));
                     ((Label) content.getChildren().get(1)).setText(item.getLocation());
                     ((Label) content.getChildren().get(2)).setText(item.getSearchTime());
                     ((Label) content.getChildren().get(3)).setText(item.getTemperature());
@@ -102,233 +127,266 @@ public class Controller {
         System.out.println("Fetching Weather Data");
         Task<Void> fetchWeatherTask = new Task<>() {
             @Override
-            protected Void call() throws Exception {
-                String units = celsiusToggle.isSelected() ? "&units=metric" : "&units=imperial";
-                try {
-                    // Get Current Weather Data
-                    String apiKey = "73085df9f155c4c2b7a2aa67da0879b9";
-                    String requestUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey + units;
+            protected Void call() {
+                String units = fahrenheitToggle.isSelected() ? "&units=imperial" : "&units=metric";
 
+                // Get Current Weather Data
+                String requestUrl = API_URL + "/weather?q=" + city + "&appid=" + API_KEY + units;
+                try {
                     HttpClient client = HttpClient.newHttpClient();
                     HttpRequest request = HttpRequest.newBuilder().uri(URI.create(requestUrl)).build();
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                     JSONObject jsonResponse = new JSONObject(response.body());
-                    if (jsonResponse.getString("cod") == "200") {
+                    if (jsonResponse.getString("cod").equals("200")) {
                         javafx.application.Platform.runLater(() -> {
                             try {
-
                                 setUIElements(jsonResponse);
-//                        addHistoryLocation(city, "20");
                             } catch (JSONException e) {
-                                System.out.println("Error:" + e);
+                                System.out.println("Error1:" + e);
                                 showErrorDialog("Something Went Wrong", "Error parsing the weather data.");
                             }
                         });
-                    } else {
-                        showErrorDialog("Something Went Wrong", "Error collecting the weather data.");
                     }
 
                     // Get Forecast Data
                     double lat = jsonResponse.getJSONObject("coord").getDouble("lat");
                     double lon = jsonResponse.getJSONObject("coord").getDouble("lon");
-                    String forecastUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
+                    String forecastUrl = API_URL + "/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + units;
                     request = HttpRequest.newBuilder().uri(URI.create(forecastUrl)).build();
                     response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                     JSONObject jsonResponseForecast = new JSONObject(response.body());
-                    if (jsonResponse.getString("cod") == "200") {
+                    if (jsonResponse.getString("cod").equals("200")) {
                         javafx.application.Platform.runLater(() -> {
                             try {
                                 setForecastElements(jsonResponseForecast);
                             } catch (JSONException e) {
-                                System.out.println("Error:" + e);
-                                showErrorDialog("Something Went Wrong", "Error parsing the forecast data.");
+                                System.out.println("Error2:" + e);
                             }
                         });
-                    } else {
-                        showErrorDialog("Something Went Wrong", "Error collecting the weather's forecast data.");
                     }
-                } catch (JSONException e) {
-                    showErrorDialog("Something Went Wrong", "Error collecting the weather's forecast data.");
+                } catch (IOException | InterruptedException | JSONException e) {
+                    System.out.println("Error3:" + e.getMessage());
+                    showErrorDialog("Unknown City", "City couldn't be found, Please try again.");
                 }
-
                 return null;
             }
         };
-
         new Thread(fetchWeatherTask).start();
     }
 
     private void setUIElements(JSONObject jsonResponse) throws JSONException {
         System.out.println("Setting Weather String Data");
-        String unitSymbol = celsiusToggle.isSelected() ? "°C" : "°F";
-        Integer timeZone = jsonResponse.getInt("timezone");
-        String temp = jsonResponse.getJSONObject("main").getDouble("temp") + unitSymbol;
+        int timeZone = jsonResponse.getInt("timezone");
+        String temp = convertTemperatureValue(jsonResponse.getJSONObject("main").getDouble("temp") + "", true);
         String weatherDescription = jsonResponse.getJSONArray("weather").getJSONObject(0).getString("main");
-        String feelsLike = jsonResponse.getJSONObject("main").getDouble("feels_like") + unitSymbol;
-        String tempMin = jsonResponse.getJSONObject("main").getDouble("temp_min") + unitSymbol;
-        String tempMax = jsonResponse.getJSONObject("main").getDouble("temp_max") + unitSymbol;
-        Double windSpeed = jsonResponse.getJSONObject("wind").getDouble("speed");
-        Double windDirection = jsonResponse.getJSONObject("wind").getDouble("deg");
+        String feelsLike = convertTemperatureValue(jsonResponse.getJSONObject("main").getDouble("feels_like") + "", true);
+        String tempMin = convertTemperatureValue(jsonResponse.getJSONObject("main").getDouble("temp_min") + "", true);
+        String tempMax = convertTemperatureValue(jsonResponse.getJSONObject("main").getDouble("temp_max") + "", true);
+        String windSpeed = convertWindValue(jsonResponse.getJSONObject("wind").getDouble("speed"), true);
+        double windDirection = jsonResponse.getJSONObject("wind").getDouble("deg");
         String humidity = jsonResponse.getJSONObject("main").getInt("humidity") + "%";
         String time = convertUnixTimeToReadableFormat(jsonResponse.getLong("dt"), timeZone);
         String sunrise = convertUnixTimeToReadableFormat(jsonResponse.getJSONObject("sys").getLong("sunrise"), timeZone);
         String sunset = convertUnixTimeToReadableFormat(jsonResponse.getJSONObject("sys").getLong("sunset"), timeZone);
         String visibility = jsonResponse.getInt("visibility") / 1000.0 + (mphToggle.isSelected() ? " mi" : " km");
         String city = jsonResponse.getString("name");
-
-        currentLocationLabel.setText("in " + city);
+        getBackgroundColorBasedOnTime(time);
+        currentLocationLabel.setText(city);
         currentTime.setText(time);
         currentTemperature.setText(temp);
         currentWeatherMain.setText(weatherDescription);
         currentFeelsLike.setText(feelsLike);
         currentTempMin.setText("Min: " + tempMin);
         currentTempMax.setText("Max: " + tempMax);
-        currentWindSpeed.setText(windSpeed.toString());
+        currentWindSpeed.setText(windSpeed);
         currentHumidity.setText(humidity);
         currentVisibility.setText(visibility);
-        temperatureGetter.setText(unitSymbol);
         sunsetTime.setText(sunset);
         sunriseTime.setText(sunrise);
-        windSpeedGetter.setText(mphToggle.isSelected() ? " m/s" : " mi/h");
         currentWindSpeedDirection.setRotate(windDirection);
         try {
-            System.out.println("Set Image");
-            String imagePath = "/images/weather/" + weatherDescription + ".png";
-            System.out.println(imagePath);
-            Image image = new Image(getClass().getResourceAsStream(imagePath));
-            System.out.println(image);
-            currentWeatherImage.setImage(image);
-            System.out.println("Data Set");
+            currentWeatherImage.setImage(loadWeatherImage(weatherDescription.toLowerCase()));
         } catch (Exception e) {
             showErrorDialog("Image Loading Error", "Failed to load weather image.");
         }
+        addHistoryLocation(city, temp); // Add to History
+        historyListView.setVisible(true);
+        System.out.println("Data Set");
+        CurrentPane.setVisible(true);
     }
 
-    private void setForecastElements(JSONObject jsonResponse) throws JSONException {
-        System.out.println("Setting Forecast String Data");
-        String unitSymbol = celsiusToggle.isSelected() ? "°C" : "°F";
-        int timeZone = jsonResponse.getInt("timezone");
-        String temp = jsonResponse.getJSONObject("main").getDouble("temp") + unitSymbol;
-        String weatherDescription = jsonResponse.getJSONArray("weather").getJSONObject(0).getString("main");
-        String feelsLike = jsonResponse.getJSONObject("main").getDouble("feels_like") + unitSymbol;
-        String tempMin = jsonResponse.getJSONObject("main").getDouble("temp_min") + unitSymbol;
-        String tempMax = jsonResponse.getJSONObject("main").getDouble("temp_max") + unitSymbol;
-        Double windSpeed = jsonResponse.getJSONObject("wind").getDouble("speed");
-        Double windDirection = jsonResponse.getJSONObject("wind").getDouble("deg");
-        String humidity = jsonResponse.getJSONObject("main").getInt("humidity") + "%";
-        String sunrise = convertUnixTimeToReadableFormat(jsonResponse.getJSONObject("sys").getLong("sunrise"), timeZone);
-        String sunset = convertUnixTimeToReadableFormat(jsonResponse.getJSONObject("sys").getLong("sunset"), timeZone);
-        String visibility = jsonResponse.getInt("visibility") / 1000.0 + (mphToggle.isSelected() ? " mi" : " km");
-        String city = jsonResponse.getString("name");
+    private void setForecastElements(JSONObject jsonResponseForecast) throws JSONException {
+        System.out.println("Setting Weather Forecast String Data");
+        List<WeatherDataAggregator.DailyWeatherInfo> forecastData = WeatherDataAggregator.aggregateWeatherData(jsonResponseForecast);
+        Label[] dayLabels = {forecastDay1, forecastDay2, forecastDay3, forecastDay4, forecastDay5};
+        Label[] minTempLabels = {forecastMin1, forecastMin2, forecastMin3, forecastMin4, forecastMin5};
+        Label[] maxTempLabels = {forecastMax1, forecastMax2, forecastMax3, forecastMax4, forecastMax5};
+        ImageView[] forecastImages = {forecastImage1, forecastImage2, forecastImage3, forecastImage4, forecastImage5};
 
-        currentLocationLabel.setText("in " + city);
-        currentTemperature.setText(temp);
-        currentWeatherMain.setText(weatherDescription);
-        currentFeelsLike.setText(feelsLike);
-        currentTempMin.setText("Min: " + tempMin);
-        currentTempMax.setText("Max: " + tempMax);
-        currentWindSpeed.setText(windSpeed.toString());
-        currentHumidity.setText(humidity);
-        currentVisibility.setText(visibility);
-        temperatureGetter.setText(unitSymbol);
-        sunsetTime.setText(sunset);
-        sunriseTime.setText(sunrise);
-        windSpeedGetter.setText(mphToggle.isSelected() ? " m/s" : " mi/h");
-        currentWindSpeedDirection.setRotate(windDirection);
-        try {
-            System.out.println("Set Image");
-            String imagePath = "/images/weather/" + weatherDescription + ".png";
-            System.out.println(imagePath);
-            Image image = new Image(getClass().getResourceAsStream(imagePath));
-            System.out.println(image);
-            currentWeatherImage.setImage(image);
-            System.out.println("Data Set");
-        } catch (Exception e) {
-            showErrorDialog("Image Loading Error", "Failed to load weather image.");
+        for (int i = 0; i < forecastData.size() && i < 5; i++) {
+            WeatherDataAggregator.DailyWeatherInfo info = forecastData.get(i);
+
+            dayLabels[i].setText(info.date);
+            minTempLabels[i].setText(convertTemperatureValue(Double.toString(info.minTemp), true));
+            maxTempLabels[i].setText(convertTemperatureValue(Double.toString(info.maxTemp), true));
+            try {
+                forecastImages[i].setImage(loadWeatherImage(info.weather.toLowerCase()));
+            } catch (Exception e) {
+                forecastImages[i].setImage(loadWeatherImage("clear"));
+            }
         }
+        System.out.println("Forecast Data Set");
+        Forecast.setVisible(true);
     }
 
-    //TODO: maintain a list of previous searches that the user can revisit. This involves updating a ListView and storing this history between sessions using a simple text file.
     private void addHistoryLocation(String location, String temperature) {
-        String iconPath = "@images/weather/barometer.png";
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        HistoryItem newItem = new HistoryItem(location, currentTime, temperature, iconPath);
+        HistoryItem newItem = new HistoryItem(location, currentTime, temperature);
         historyListView.getItems().add(0, newItem); // Add to the top of the list
     }
 
-    public void removeHistoryLocation(ActionEvent actionEvent) {
-//TODO: Remove HistoryLocation from list
+    // Update the color of the background based on the time of day
+    public void getBackgroundColorBasedOnTime(String time) {
+        // Parse the hour from the input string
+        int hour = Integer.parseInt(time.split(":")[0]);
+
+        if (hour < 6) {
+            AnchorPaneWindow.setBackground(new Background(new BackgroundFill(Color.DARKBLUE, new CornerRadii(0), Insets.EMPTY))); // Night
+        } else if (hour < 12) {
+            AnchorPaneWindow.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, new CornerRadii(0), Insets.EMPTY))); // Morning
+        } else if (hour < 18) {
+            AnchorPaneWindow.setBackground(new Background(new BackgroundFill(Color.ORANGE, new CornerRadii(0), Insets.EMPTY))); // Afternoon
+        } else {
+            AnchorPaneWindow.setBackground(new Background(new BackgroundFill(Color.PURPLE, new CornerRadii(0), Insets.EMPTY))); // Evening
+        }
     }
 
 
-    private Image loadImage(String path) {
+    private Image loadWeatherImage(String path) {
         try {
-            return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+            return new Image(getClass().getResourceAsStream("images/weather/" + path + ".png"));
         } catch (Exception e) {
             showErrorDialog("Resource Loading Error", "Could not load image: " + path);
-            return null; // TODO: Return a default image
+            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/weather/clear.png")));
+            return image;
         }
     }
 
     private void updateUIWithConversion() {
-        // Convert the temperature if necessary
-        String newTemp;
-        String newWindSpeed;
-
-        if (celsiusToggle.isSelected()) {
-            // Convert to Celsius if not already
-            newTemp = convertToCelsius(currentTemperature.getText()) + "°C";
-            // Update Toggle to Celsius
-            celsiusToggle.setText("°C");
-        } else {
-            // Convert to Fahrenheit if not already
-            newTemp = convertToFahrenheit(currentTemperature.getText()) + "°F";
+        if (fahrenheitToggle.isSelected()) {
             // Update Toggle to Fahrenheit
-            celsiusToggle.setText("°F");
+            fahrenheitToggle.setText("°F");
+        } else {
+            // Update Toggle to Celsius
+            fahrenheitToggle.setText("°C");
         }
         if (mphToggle.isSelected()) {
-            // Convert to mph if not already
-            newWindSpeed = convertToMph(currentWindSpeed.getText()) + " mph";
             // Update Toggle to mph
             mphToggle.setText("mph");
         } else {
-            // Convert to km/h if not already
-            newWindSpeed = convertToKmh(currentWindSpeed.getText()) + " km/h";
             // Update Toggle to km/h
             mphToggle.setText("km/h");
         }
+        // Convert the Min and Max temperature if necessary
+        currentTempMin.setText("Min: " + convertTemperatureValue(currentTempMin.getText().replace("Min: ", ""), false));
+        currentTempMax.setText("Max: " + convertTemperatureValue(currentTempMax.getText().replace("Max: ", ""), false));
 
-        // Update UI with new values
-        currentTemperature.setText(newTemp);
-        currentWindSpeed.setText(newWindSpeed);
+        // Current Winds
+        currentWindSpeed.setText(convertWindValue(extractDouble(currentWindSpeed.getText()), false));
+
+        // Current visibility
+        currentVisibility.setText(convertVisibility(currentVisibility.getText()));
+
+        // Temperatures
+        Label[] temperatureLabels = {currentTemperature, currentFeelsLike, forecastDay1, forecastDay2, forecastDay3, forecastDay4, forecastDay5, forecastMin1, forecastMin2, forecastMin3, forecastMin4, forecastMin5, forecastMax1, forecastMax2, forecastMax3, forecastMax4, forecastMax5};
+
+        // Loop through the array of temperatureLabels and convert each
+        for (Label label : temperatureLabels) {
+            String newText = convertTemperatureValue(label.getText(), false);
+            label.setText(newText);
+        }
     }
 
     // Conversion methods
-    private String convertToFahrenheit(String celsiusTemp) {
-        // Extract numerical value from the string, convert and return as string
-        double temp = Double.parseDouble(celsiusTemp.replaceAll("[^\\d.]", ""));
-        double fahrenheit = (temp * 9 / 5) + 32; // To Fahrenheit: (°C × 9/5) + 32 = °F
-        return String.format("%.1f", fahrenheit);
+    private Double convertToFahrenheit(Double celsius) {
+        return (celsius * 9 / 5) + 32; // To Fahrenheit: (°C × 9/5) + 32 = °F
     }
 
-    private String convertToCelsius(String fahrenheitTemp) {
-        double temp = Double.parseDouble(fahrenheitTemp.replaceAll("[^\\d.]", ""));
-        double celsius = (temp - 32) * 5 / 9; // To Celsius: (°F − 32) × 5/9 = °C
-        return String.format("%.1f", celsius);
+    private Double convertToCelsius(Double fahrenheit) {
+        return (fahrenheit - 32) * 5 / 9; // To Celsius: (°F − 32) × 5/9 = °C
     }
 
-    private String convertToMph(String kmhSpeed) {
-        double kmh = Double.parseDouble(kmhSpeed.replaceAll("[^\\d.]", ""));
-        double fahrenheit = kmh / 1.609; // To Miles per Hour: km/h ÷ 1.609 = mph
-        return String.format("%.1f", fahrenheit);
+    private Double convertToMph(Double kmh) {
+        return (kmh / 1.609); // KmpH to Miles per Hour: km/h ÷ 1.609 = mph
     }
 
-    private String convertToKmh(String mphSpeed) {
-        double mph = Double.parseDouble(mphSpeed.replaceAll("[^\\d.]", ""));
-        double kilometers = mph * 1.609; // To Kilometers per Hour: mph × 1.609 = km/h
-        return String.format("%.1f", kilometers);
+    private Double convertToKmh(Double mph) {
+        return (mph * 1.609); // mph to Kilometers per Hour: mph × 1.609 = km/h
+    }
+
+    private String convertTemperatureValue(String value, Boolean set) {
+        // Extract the numeric value from the input string
+        double numericValue = extractDouble(value);
+        String newTemp = value; // Default to original value
+
+        // Determine the target unit based on the toggle state
+        String targetUnit = fahrenheitToggle.isSelected() ? "°F" : "°C";
+
+        // Check if conversion is needed based on the presence of the target unit in the original value
+        if (set) {
+            // Decorate the numeric value with the target unit without conversion
+            newTemp = String.format("%.1f", numericValue) + targetUnit;
+        } else if ((value.contains("°F") && fahrenheitToggle.isSelected()) || (value.contains("°C") && !fahrenheitToggle.isSelected())) {
+            // If the value already contains the target unit, no conversion is needed
+            return value;
+        } else {
+            // Conversion is needed
+            if (fahrenheitToggle.isSelected() && value.contains("°C")) {
+                // Convert to Fahrenheit
+                numericValue = convertToFahrenheit(numericValue);
+            } else if (!fahrenheitToggle.isSelected() && value.contains("°F")) {
+                // Convert to Celsius
+                numericValue = convertToCelsius(numericValue);
+            }
+            newTemp = String.format("%.1f", numericValue) + targetUnit;
+        }
+        return newTemp;
+    }
+
+    private String convertWindValue(Double value, Boolean set) {
+        System.out.println("convertWindValue: " + value + ", mphToggle: " + mphToggle.isSelected());
+        String newWindSpeed;
+        if (mphToggle.isSelected()) {
+            // Convert to mph
+            newWindSpeed = set ? value.intValue() + " mph" : convertToMph(value).intValue() + " mph";
+        } else {
+            // convert to km/h
+            newWindSpeed = set ? value.intValue() + " km/h" : convertToKmh(value).intValue() + " km/h";
+        }
+        return newWindSpeed;
+    }
+
+    private String convertVisibility(String visibilityString) {
+        // Check if the string ends with "km" or "mi"
+        boolean isKm = visibilityString.endsWith("km");
+        boolean isMiles = visibilityString.endsWith("mi");
+        // Extract the numeric part of the visibility string
+        double value = extractDouble(visibilityString);
+        // Perform conversion based on the current state of mphToggle and the unit in the string
+        if (isKm && mphToggle.isSelected()) {
+            // Convert from kilometers to miles
+            double miles = value * 0.621371;
+            return String.format("%.1f", miles) + " mi";
+        } else if (isMiles && !mphToggle.isSelected()) {
+            // Convert from miles to kilometers
+            double kilometers = value / 0.621371;
+            return String.format("%.1f", kilometers) + " km";
+        } else {
+            // No conversion needed, return the original string
+            return visibilityString;
+        }
     }
 
     public static String convertUnixTimeToReadableFormat(long unixTimestamp, int timezoneOffsetInSeconds) {
@@ -344,6 +402,14 @@ public class Controller {
         // Format the ZonedDateTime to a readable string (e.g., HH:mm)
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return zonedDateTime.format(formatter);
+    }
+
+    public double extractDouble(String text) {
+        Matcher matcher = Pattern.compile("[-+]?\\d*\\.?\\d+").matcher(text);
+        if (matcher.find()) {
+            return Double.parseDouble(matcher.group());
+        }
+        return 0; // Default to 0 if no number is found
     }
 
     // Error Handling

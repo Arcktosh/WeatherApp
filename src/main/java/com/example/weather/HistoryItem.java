@@ -4,13 +4,12 @@ public class HistoryItem {
     private String location;
     private String searchTime;
     private String temperature;
-    private String iconPath;
 
-    public HistoryItem(String location, String searchTime, String temperature, String iconPath) {
+
+    public HistoryItem(String location, String searchTime, String temperature) {
         this.location = location;
         this.searchTime = searchTime;
         this.temperature = temperature;
-        this.iconPath = iconPath;
     }
 
     // Getters and setters
@@ -26,7 +25,4 @@ public class HistoryItem {
         return temperature;
     }
 
-    public String getIconPath() {
-        return iconPath;
-    }
 }

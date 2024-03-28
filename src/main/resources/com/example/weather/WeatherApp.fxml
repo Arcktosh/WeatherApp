@@ -1,253 +1,252 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<AnchorPane id="pane" prefHeight="425.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.weather.Controller">
-    <TextField fx:id="searchField" layoutX="14.0" layoutY="14.0" prefHeight="32.0" prefWidth="224.0"
-               promptText="Search a Location"/>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="AnchorPaneWindow" prefHeight="516.0" prefWidth="833.0" style="-fx-background-color: midnightBlue;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.weather.Controller">
+    <TextField fx:id="searchField" layoutX="14.0" layoutY="14.0" prefHeight="32.0" prefWidth="224.0" promptText="Search a Location" />
     <Button layoutX="240.0" layoutY="15.0" mnemonicParsing="false" onAction="#onSearch">
         <graphic>
             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                <Image url="@images/navIcons/search.png"/>
+                <Image url="@images/navIcons/search.png" />
             </ImageView>
         </graphic>
     </Button>
-    <HBox layoutX="394.0" layoutY="16.0" prefHeight="32.0" prefWidth="186.0">
-        <ToggleButton fx:id="celsiusToggle" mnemonicParsing="false" onAction="#handleToggleAction" prefHeight="32.0"
-                      prefWidth="59.0">
+    <HBox alignment="TOP_RIGHT" layoutX="502.0" layoutY="16.0" prefHeight="32.0" prefWidth="319.0">
+        <ToggleButton fx:id="fahrenheitToggle" mnemonicParsing="false" onAction="#handleToggleAction" prefHeight="32.0" prefWidth="59.0" text="°C">
             <graphic>
                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/navIcons/temperature.png"/>
+                    <Image url="@images/navIcons/temperature.png" />
                 </ImageView>
             </graphic>
             <HBox.margin>
-                <Insets left="2.0" right="2.0"/>
+                <Insets left="2.0" right="2.0" />
             </HBox.margin>
         </ToggleButton>
-        <ToggleButton fx:id="mphToggle" mnemonicParsing="false" onAction="#handleToggleAction" prefHeight="32.0"
-                      prefWidth="104.0">
+        <ToggleButton fx:id="mphToggle" mnemonicParsing="false" onAction="#handleToggleAction" prefHeight="32.0" prefWidth="101.0" text="km/h">
             <graphic>
                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/navIcons/plane.png"/>
+                    <Image url="@images/navIcons/plane.png" />
                 </ImageView>
             </graphic>
             <HBox.margin>
-                <Insets left="2.0" right="2.0"/>
+                <Insets left="2.0" right="2.0" />
             </HBox.margin>
         </ToggleButton>
     </HBox>
-    <Pane layoutX="10.0" layoutY="64.0" prefHeight="243.0" prefWidth="359.0">
-        <HBox prefHeight="48.0" prefWidth="200.0">
-            <Label text="Current Weather at:" visible="false" fx:id="CurrentWeatherLabel">
+    <Pane fx:id="CurrentPane" layoutX="10.0" layoutY="64.0" prefHeight="243.0" prefWidth="359.0" visible="false">
+        <HBox prefHeight="48.0" prefWidth="352.0">
+            <Label fx:id="CurrentWeatherLabel" prefHeight="18.0" prefWidth="114.0" text="Current Weather at:" textFill="WHITE">
                 <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
+                    <Insets left="2.0" right="2.0" />
                 </HBox.margin>
             </Label>
-            <Label fx:id="currentTime">
+            <Label fx:id="currentTime" prefHeight="18.0" prefWidth="34.0" textFill="WHITE">
                 <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
+                    <Insets left="2.0" right="2.0" />
                 </HBox.margin>
             </Label>
-            <Label fx:id="currentLocationLabel">
+            <Label fx:id="currentLocationLabel" alignment="TOP_RIGHT" contentDisplay="RIGHT" prefHeight="54.0" prefWidth="206.0" textFill="WHITE" underline="true">
                 <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
-                </HBox.margin>
-            </Label>
-        </HBox>
-        <ImageView fx:id="currentWeatherImage" fitHeight="48.0" fitWidth="48.0" layoutY="65.0" pickOnBounds="true"
-                   preserveRatio="true"  visible="false"/>
-        <Label fx:id="currentTemperature" layoutX="41.0" layoutY="60.0" prefHeight="53.0" prefWidth="71.0">
-            <font>
-                <Font size="36.0"/>
-            </font>
-        </Label>
-        <Label fx:id="temperatureGetter" alignment="CENTER_RIGHT" layoutX="112.0" layoutY="60.0" prefHeight="53.0"
-               prefWidth="40.0" textAlignment="RIGHT">
-            <font>
-                <Font size="36.0"/>
-            </font>
-        </Label>
-        <Label fx:id="currentWeatherMain" layoutX="164.0" layoutY="65.0">
-            <font>
-                <Font size="18.0"/>
-            </font>
-        </Label>
-        <Label layoutX="163.0" layoutY="92.0" text="Feels like" visible="false" fx:id="FeelsLikeLabel"/>
-        <Label fx:id="currentFeelsLike" alignment="CENTER" contentDisplay="CENTER" layoutX="213.0" layoutY="92.0"
-               prefHeight="17.0" prefWidth="15.0" textAlignment="CENTER"/>
-        <Label fx:id="currentTempMin" layoutX="251.0" layoutY="69.0">
-            <font>
-                <Font size="14.0"/>
-            </font>
-        </Label>
-        <Label fx:id="currentTempMax" layoutX="251.0" layoutY="91.0">
-            <font>
-                <Font size="14.0"/>
-            </font>
-        </Label>
-        <HBox id="sunRiseSet" layoutY="112.0" prefHeight="50.0" prefWidth="224.0">
-            <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" visible="false" fx:id="sunriseImage">
-                <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
-                </HBox.margin>
-                <Image url="@images/weather/sunrise.png"/>
-            </ImageView>
-            <Label fx:id="sunriseTime">
-                <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
+                    <Insets left="2.0" right="2.0" />
                 </HBox.margin>
                 <font>
-                    <Font size="24.0"/>
+                    <Font size="24.0" />
                 </font>
             </Label>
-            <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" visible="false" fx:id="sunsetImage">
+        </HBox>
+        <ImageView fx:id="currentWeatherImage" fitHeight="48.0" fitWidth="48.0" layoutY="65.0" pickOnBounds="true" preserveRatio="true" />
+        <Label fx:id="currentTemperature" layoutX="41.0" layoutY="60.0" prefHeight="53.0" prefWidth="123.0" textFill="WHITE">
+            <font>
+                <Font size="36.0" />
+            </font>
+        </Label>
+        <Label fx:id="currentWeatherMain" layoutX="164.0" layoutY="65.0" textFill="WHITE">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <Label fx:id="FeelsLikeLabel" layoutX="163.0" layoutY="92.0" text="Feels like" textFill="WHITE" />
+        <Label fx:id="currentFeelsLike" alignment="CENTER" contentDisplay="CENTER" layoutX="213.0" layoutY="92.0" prefHeight="17.0" prefWidth="45.0" textAlignment="CENTER" textFill="WHITE" />
+        <Label fx:id="currentTempMin" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="251.0" layoutY="69.0" prefHeight="20.0" prefWidth="108.0" textAlignment="RIGHT" textFill="WHITE">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label fx:id="currentTempMax" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="251.0" layoutY="91.0" prefHeight="20.0" prefWidth="108.0" textAlignment="RIGHT" textFill="WHITE">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <HBox id="sunRiseSet" layoutY="112.0" prefHeight="50.0" prefWidth="290.0">
+            <ImageView fx:id="sunriseImage" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                 <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
+                    <Insets left="2.0" right="2.0" />
                 </HBox.margin>
-                <Image url="@images/weather/sunset.png"/>
+                <Image url="@images/weather/sunrise.png" />
             </ImageView>
-            <Label fx:id="sunsetTime">
+            <Label fx:id="sunriseTime" prefHeight="35.0" prefWidth="67.0" text="08:00" textFill="WHITE">
                 <HBox.margin>
-                    <Insets left="2.0" right="2.0"/>
+                    <Insets left="2.0" right="5.0" />
                 </HBox.margin>
                 <font>
-                    <Font size="24.0"/>
+                    <Font size="24.0" />
+                </font>
+            </Label>
+            <ImageView fx:id="sunsetImage" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                <HBox.margin>
+                    <Insets left="5.0" right="2.0" />
+                </HBox.margin>
+                <Image url="@images/weather/sunset.png" />
+            </ImageView>
+            <Label fx:id="sunsetTime" text="08:00" textFill="WHITE">
+                <HBox.margin>
+                    <Insets left="2.0" right="2.0" />
+                </HBox.margin>
+                <font>
+                    <Font size="24.0" />
                 </font>
             </Label>
             <opaqueInsets>
-                <Insets left="2.0" right="2.0"/>
+                <Insets left="2.0" right="2.0" />
             </opaqueInsets>
         </HBox>
         <HBox id="WeatherMinorDetails" layoutX="11.0" layoutY="159.0" prefHeight="100.0" prefWidth="352.0">
             <VBox prefHeight="200.0" prefWidth="100.0">
-                <Label text="Wind" visible="false" fx:id="WindLabel"/>
-                <Label fx:id="currentWindSpeed"/>
-                <Label fx:id="windSpeedGetter"/>
-                <ImageView fx:id="currentWindSpeedDirection" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true"
-                           preserveRatio="true" visible="false">
-                    <Image url="@images/navIcons/windArrow.png"/>
-                </ImageView>
+                <HBox prefHeight="27.0" prefWidth="100.0">
+                    <Label fx:id="WindLabel" text="Wind" textFill="WHITE" />
+                    <ImageView fx:id="currentWindSpeedDirection" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@images/navIcons/windArrow.png" />
+                        <HBox.margin>
+                            <Insets left="5.0" />
+                        </HBox.margin>
+                    </ImageView>
+                </HBox>
+                <Label fx:id="currentWindSpeed" textFill="WHITE" />
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0">
-                <Label text="Humidity" visible="false" fx:id="HumidityLabel"/>
-                <Label fx:id="currentHumidity"/>
+                <Label fx:id="HumidityLabel" text="Humidity" textFill="WHITE" />
+                <Label fx:id="currentHumidity" textFill="WHITE" />
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0">
-                <Label text="Visibility" visible="false" fx:id="VisibilityLabel"/>
-                <Label fx:id="currentVisibility"/>
+                <Label fx:id="VisibilityLabel" text="Visibility" textFill="WHITE" />
+                <Label fx:id="currentVisibility" textFill="WHITE" />
             </VBox>
         </HBox>
     </Pane>
-    <ListView fx:id="historyListView" layoutX="399.0" layoutY="64.0" prefHeight="243.0" prefWidth="186.0"/>
-    <Label layoutX="14.0" layoutY="347.0" text="Forecast" visible="false" fx:id="ForecastLabel">
-        <font>
-            <Font size="18.0"/>
-        </font>
-    </Label>
-    <HBox layoutY="375.0" prefHeight="152.0" prefWidth="678.0">
-        <VBox prefHeight="152.0" prefWidth="149.0">
-            <padding>
-                <Insets left="10.0" right="10.0"/>
-            </padding>
-            <Label fx:id="forecastDay1" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0"
-                   prefWidth="130.0" textAlignment="CENTER"/>
-            <ImageView fx:id="forecastImage1" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true"
-                       preserveRatio="true"/>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false"
-                           fx:id="forecastMin1Image">
-                    <Image url="@images/weather/clear-night.png"/>
-                </ImageView>
-                <Label fx:id="forecastMin1" prefHeight="18.0" prefWidth="78.0"/>
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false"
-                           fx:id="forecastMax1Image">
-                    <Image url="@images/weather/Clear.png"/>
-                </ImageView>
-                <Label fx:id="forecastMax1" prefHeight="18.0" prefWidth="74.0"/>
+    <ListView fx:id="historyListView" layoutX="399.0" layoutY="64.0" prefHeight="230.0" prefWidth="421.0" style="-fx-background-color: transparent;" visible="false" />
+    <Pane fx:id="Forecast" layoutY="307.0" prefHeight="209.0" prefWidth="290.0" visible="false">
+        <VBox layoutX="10.0" prefHeight="200.0" prefWidth="663.0">
+            <Label fx:id="ForecastLabel" prefHeight="27.0" prefWidth="82.0" text="Forecast" textFill="WHITE">
+                <font>
+                    <Font size="18.0" />
+                </font>
+                <VBox.margin>
+                    <Insets bottom="12.0" />
+                </VBox.margin>
+            </Label>
+            <HBox prefHeight="154.0" prefWidth="666.0">
+                <VBox prefHeight="152.0" prefWidth="149.0">
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                    <Label fx:id="forecastDay1" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="130.0" textAlignment="CENTER" textFill="WHITE" />
+                    <ImageView fx:id="forecastImage1" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true" />
+                    <HBox prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear-night.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMin1" prefHeight="18.0" prefWidth="78.0" textFill="WHITE" />
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMax1" prefHeight="18.0" prefWidth="74.0" textFill="WHITE" />
+                    </HBox>
+                </VBox>
+                <VBox prefHeight="152.0" prefWidth="149.0">
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                    <Label fx:id="forecastDay2" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="130.0" textAlignment="CENTER" textFill="WHITE" />
+                    <ImageView fx:id="forecastImage2" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true" />
+                    <HBox prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear-night.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMin2" prefHeight="18.0" prefWidth="78.0" textFill="WHITE" />
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMax2" prefHeight="18.0" prefWidth="74.0" textFill="WHITE" />
+                    </HBox>
+                </VBox>
+                <VBox prefHeight="152.0" prefWidth="149.0">
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                    <Label fx:id="forecastDay3" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="130.0" textAlignment="CENTER" textFill="WHITE" />
+                    <ImageView fx:id="forecastImage3" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true" />
+                    <HBox prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear-night.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMin3" prefHeight="18.0" prefWidth="78.0" textFill="WHITE" />
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMax3" prefHeight="18.0" prefWidth="74.0" textFill="WHITE" />
+                    </HBox>
+                </VBox>
+                <VBox prefHeight="152.0" prefWidth="149.0">
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                    <Label fx:id="forecastDay4" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="130.0" textAlignment="CENTER" textFill="WHITE" />
+                    <ImageView fx:id="forecastImage4" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true" />
+                    <HBox prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear-night.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMin4" prefHeight="18.0" prefWidth="78.0" textFill="WHITE" />
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMax4" prefHeight="18.0" prefWidth="74.0" textFill="WHITE" />
+                    </HBox>
+                </VBox>
+                <VBox prefHeight="152.0" prefWidth="149.0">
+                    <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                    </HBox.margin>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                    <Label fx:id="forecastDay5" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="130.0" textAlignment="CENTER" textFill="WHITE" />
+                    <ImageView fx:id="forecastImage5" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true" />
+                    <HBox prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear-night.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMin5" prefHeight="18.0" prefWidth="78.0" textFill="WHITE" />
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/weather/clear.png" />
+                        </ImageView>
+                        <Label fx:id="forecastMax5" prefHeight="18.0" prefWidth="74.0" textFill="WHITE" />
+
+                    </HBox>
+                </VBox>
             </HBox>
         </VBox>
-        <VBox prefHeight="152.0" prefWidth="149.0">
-            <padding>
-                <Insets left="10.0" right="10.0"/>
-            </padding>
-            <Label fx:id="forecastDay2" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0"
-                   prefWidth="130.0" textAlignment="CENTER"/>
-            <ImageView fx:id="forecastImage2" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true"
-                       preserveRatio="true"/>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/clear-night.png"/>
-                </ImageView>
-                <Label fx:id="forecastMin2" prefHeight="18.0" prefWidth="78.0"/>
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/Clear.png"/>
-                </ImageView>
-                <Label fx:id="forecastMax2" prefHeight="18.0" prefWidth="74.0"/>
-            </HBox>
-        </VBox>
-        <VBox prefHeight="152.0" prefWidth="149.0">
-            <padding>
-                <Insets left="10.0" right="10.0"/>
-            </padding>
-            <Label fx:id="forecastDay3" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0"
-                   prefWidth="130.0" textAlignment="CENTER"/>
-            <ImageView fx:id="forecastImage3" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true"
-                       preserveRatio="true"/>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/clear-night.png"/>
-                </ImageView>
-                <Label fx:id="forecastMin3" prefHeight="18.0" prefWidth="78.0"/>
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/Clear.png"/>
-                </ImageView>
-                <Label fx:id="forecastMax3" prefHeight="18.0" prefWidth="74.0"/>
-            </HBox>
-        </VBox>
-        <VBox prefHeight="152.0" prefWidth="149.0">
-            <padding>
-                <Insets left="10.0" right="10.0"/>
-            </padding>
-            <Label fx:id="forecastDay4" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0"
-                   prefWidth="130.0" textAlignment="CENTER"/>
-            <ImageView fx:id="forecastImage4" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true"
-                       preserveRatio="true"/>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/clear-night.png"/>
-                </ImageView>
-                <Label fx:id="forecastMin4" prefHeight="18.0" prefWidth="78.0"/>
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/Clear.png"/>
-                </ImageView>
-                <Label fx:id="forecastMax4" prefHeight="18.0" prefWidth="74.0"/>
-            </HBox>
-        </VBox>
-        <VBox prefHeight="152.0" prefWidth="149.0">
-            <HBox.margin>
-                <Insets left="5.0" right="5.0"/>
-            </HBox.margin>
-            <padding>
-                <Insets left="10.0" right="10.0"/>
-            </padding>
-            <Label fx:id="forecastDay5" alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0"
-                   prefWidth="130.0" textAlignment="CENTER"/>
-            <ImageView fx:id="forecastImage5" fitHeight="110.0" fitWidth="110.0" pickOnBounds="true"
-                       preserveRatio="true"/>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/clear-night.png"/>
-                </ImageView>
-                <Label fx:id="forecastMin5" prefHeight="18.0" prefWidth="78.0"/>
-                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                    <Image url="@images/weather/Clear.png"/>
-                </ImageView>
-                <Label fx:id="forecastMax5" prefHeight="18.0" prefWidth="74.0"/>
-            </HBox>
-        </VBox>
-    </HBox>
+    </Pane>
 </AnchorPane>
